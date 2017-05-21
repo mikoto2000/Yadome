@@ -5,6 +5,7 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.BorderPane?>
 <BorderPane fx:id="root" xmlns="http://javafx.com/javafx"
     xmlns:fx="http://javafx.com/fxml"
@@ -21,8 +22,8 @@
         </MenuBar>
     </top>
     <center>
-        <ScrollPane>
-            <Label fx:id="label" text="Main" />
+        <ScrollPane fitToHeight="true" fitToWidth="true">
+            <TreeView fx:id="treeView" />
         </ScrollPane>
     </center>
 </BorderPane>
