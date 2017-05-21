@@ -15,7 +15,12 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        Pane root = FXMLLoader.load(getClass().getResource("/Main.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Main.fxml"));;
+        Pane root = loader.load();
+
+        MainController controller = (MainController) loader.getController();
+        controller.setStage(stage);
+
         stage.setScene(new Scene(root));
         stage.setTitle("Yadome");
         stage.show();

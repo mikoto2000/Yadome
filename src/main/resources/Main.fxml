@@ -1,12 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.BorderPane?>
 <BorderPane fx:id="root" xmlns="http://javafx.com/javafx"
     xmlns:fx="http://javafx.com/fxml"
-    fx:controller="jp.dip.oyasirazu.yadome.Main">
+    fx:controller="jp.dip.oyasirazu.yadome.MainController">
+    <top>
+        <MenuBar>
+            <menus>
+                <Menu text="File">
+                    <items>
+                        <MenuItem text="Open" onAction="#onFileOpen" />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
     <center>
-        <Label text="Main" />
+        <ScrollPane>
+            <Label fx:id="label" text="Main" />
+        </ScrollPane>
     </center>
 </BorderPane>
 
