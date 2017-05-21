@@ -60,23 +60,34 @@ public class MainController {
         Document document = application.getDocument();
         Element documentRoot = document.getDocumentElement();
 
-        TreeItem<Node> treeViewRoot = walkTree(documentRoot);
-        treeView.setRoot(treeViewRoot);
+        Optional<TreeItem<Node>> treeViewRootOpt = walkTree(documentRoot);
+        if (treeViewRootOpt.isPresent()) {
+            treeView.setRoot(treeViewRootOpt.get());
+        }
     }
 
-    private TreeItem<Node> walkTree(Node target) {
-        System.out.println(target);
+    private Optional<TreeItem<Node>> walkTree(Node target) {
+
+        if (target.getNodeType() == Node.TEXT_NODE
+                && target.getNodeValue().trim().isEmpty()) {
+            return Optional.empty();
+        }
+
         TreeItem<Node> targetTreeItem = new TreeItem<>(target);
         ObservableList<TreeItem<Node>> targetTreeItemChildren =
                 targetTreeItem.getChildren();
 
         NodeList children = target.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
-            targetTreeItemChildren.add(walkTree(children.item(i)));
+            Optional<TreeItem<Node>> childOpt = walkTree(children.item(i));
+
+            if (childOpt.isPresent()) {
+                targetTreeItemChildren.add(childOpt.get());
+            }
         }
 
         targetTreeItem.setExpanded(true);
-        return targetTreeItem;
+        return Optional.of(targetTreeItem);
     }
 
     public void setApplication(Main application) {
