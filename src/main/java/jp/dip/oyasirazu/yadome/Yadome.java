@@ -10,6 +10,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import lombok.Getter;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -32,4 +34,34 @@ public class Yadome {
         DocumentBuilder builder = factory.newDocumentBuilder();
         document = builder.parse(xmlFilePath.toFile());
     }
+
+    public void walkTree(NodeVisitor visitor) {
+        walkTreeP(document.getDocumentElement(), visitor);
+    }
+
+    private NodeVisitResult walkTreeP(
+            Node target,
+            NodeVisitor visitor) {
+
+        NodeVisitResult visitResult = visitor.visitNode(target);
+        if (visitResult == NodeVisitResult.TERMINATE) {
+            return NodeVisitResult.TERMINATE;
+        } else if (visitResult == NodeVisitResult.SKIP_SUBTREE) {
+            return NodeVisitResult.CONTINUE;
+        }
+
+        NodeList children = target.getChildNodes();
+        int childrenCount = children.getLength();
+        for (int i = 0; i < childrenCount; i++) {
+            NodeVisitResult childResult = walkTreeP(children.item(i), visitor);
+            if (childResult == NodeVisitResult.TERMINATE) {
+                return NodeVisitResult.TERMINATE;
+            } else if (childResult == NodeVisitResult.SKIP_SIBLINGS) {
+                break;
+            }
+        }
+
+        return NodeVisitResult.CONTINUE;
+    }
 }
+

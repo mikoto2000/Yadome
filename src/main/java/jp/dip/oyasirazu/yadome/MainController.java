@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
@@ -12,10 +11,6 @@ import javafx.scene.control.TreeView;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -28,7 +23,7 @@ public class MainController {
     private Main application;
 
     @FXML
-    private TreeView<Node> treeView;
+    private TreeView<YadomeViewData> treeView;
 
     @FXML
     private Label label;
@@ -57,37 +52,9 @@ public class MainController {
     }
 
     private void initializeTreeView() {
-        Document document = application.getDocument();
-        Element documentRoot = document.getDocumentElement();
-
-        Optional<TreeItem<Node>> treeViewRootOpt = walkTree(documentRoot);
-        if (treeViewRootOpt.isPresent()) {
-            treeView.setRoot(treeViewRootOpt.get());
-        }
-    }
-
-    private Optional<TreeItem<Node>> walkTree(Node target) {
-
-        if (target.getNodeType() == Node.TEXT_NODE
-                && target.getNodeValue().trim().isEmpty()) {
-            return Optional.empty();
-        }
-
-        TreeItem<Node> targetTreeItem = new TreeItem<>(target);
-        ObservableList<TreeItem<Node>> targetTreeItemChildren =
-                targetTreeItem.getChildren();
-
-        NodeList children = target.getChildNodes();
-        for (int i = 0; i < children.getLength(); i++) {
-            Optional<TreeItem<Node>> childOpt = walkTree(children.item(i));
-
-            if (childOpt.isPresent()) {
-                targetTreeItemChildren.add(childOpt.get());
-            }
-        }
-
-        targetTreeItem.setExpanded(true);
-        return Optional.of(targetTreeItem);
+        TreeItem<YadomeViewData> treeViewRoot =
+                application.buildTreeItem();
+        treeView.setRoot(treeViewRoot);
     }
 
     public void setApplication(Main application) {

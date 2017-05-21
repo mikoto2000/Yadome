@@ -3,18 +3,21 @@ package jp.dip.oyasirazu.yadome;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.TreeItem;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**
@@ -43,8 +46,37 @@ public class Main extends Application {
         yadome = new Yadome(xmlFilePath);
     }
 
-    public Document getDocument() {
-        return yadome.getDocument();
+    // TODO: ファクトリクラスを受け取るようにして、
+    //       TreeItem を意識しないようにしたい。
+    public TreeItem<YadomeViewData> buildTreeItem() {
+
+        // ノードから TreeItem への紐づけを記憶する Map を作成
+        Map<Node, TreeItem<YadomeViewData>> map = new HashMap<>();
+
+        yadome.walkTree(new NodeVisitor() {
+            @Override
+            public NodeVisitResult visitNode(Node node) {
+                if (node.getNodeType() == Node.TEXT_NODE
+                        && node.getTextContent().trim().isEmpty()) {
+                    return NodeVisitResult.CONTINUE;
+                }
+
+                TreeItem<YadomeViewData> target =
+                        new TreeItem<YadomeViewData>(new YadomeViewData(node));
+                target.setExpanded(true);
+                map.put(node, target);
+
+                TreeItem<YadomeViewData> parent =
+                        map.get(node.getParentNode());
+                if (parent != null) {
+                    parent.getChildren().add(target);
+                }
+
+                return NodeVisitResult.CONTINUE;
+            }
+        });
+
+        return map.get(yadome.getDocument().getDocumentElement());
     }
 
     @Override
