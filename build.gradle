@@ -66,7 +66,7 @@ dependencies {
 }
 
 // Define the main class for the application
-mainClassName = 'jp.dip.oyasirazu.artags.Main'
+mainClassName = 'jp.dip.oyasirazu.yadome.Main'
 
 test {
     doLast {
@@ -101,7 +101,7 @@ jar {
     manifest {
         attributes 'Implementation-Title': 'Yet Another DOM Editor.'
         attributes 'Implementation-Version': 1.0
-        attributes "Main-Class" : "jp.dip.oyasirazu.yadome.Main"
+        attributes "Main-Class" : mainClassName
     }
     from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
 }
