@@ -46,8 +46,6 @@ public class Main extends Application {
         yadome = new Yadome(xmlFilePath);
     }
 
-    // TODO: ファクトリクラスを受け取るようにして、
-    //       TreeItem を意識しないようにしたい。
     public TreeItem<YadomeViewData> buildTreeItem() {
 
         // ノードから TreeItem への紐づけを記憶する Map を作成
