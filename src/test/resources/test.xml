@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<root attr1="attr1_value" >
     <first>
-        <ff>first first</ff>
+        <ff attr1="attr1_value" attr2="attr2_value">first first</ff>
     </first>
+    <!-- コメントメッセージ -->
     <second>
         <sf>second first</sf>
     </second>
+    <cdata><![CDATA[＼(>_<)／]]></cdata>
 </root>
