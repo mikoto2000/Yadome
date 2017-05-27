@@ -15,7 +15,7 @@ public class YadomeViewData {
     private DisplayBuilder displayBuilder;
 
     public YadomeViewData(Node node) {
-        this(node, DisplayBuilderDefault.newInstance());
+        this(node, new DisplayBuilder(){});
     }
 
     @Override

@@ -50,6 +50,7 @@ public class Main extends Application {
 
         // ノードから TreeItem への紐づけを記憶する Map を作成
         Map<Node, TreeItem<YadomeViewData>> map = new HashMap<>();
+        DisplayBuilder displayBuilder = new DisplayBuilder(){};
 
         yadome.walkTree(new NodeVisitor() {
             @Override
@@ -60,7 +61,7 @@ public class Main extends Application {
                 }
 
                 TreeItem<YadomeViewData> target =
-                        new TreeItem<YadomeViewData>(new YadomeViewData(node));
+                        new TreeItem<YadomeViewData>(new YadomeViewData(node, displayBuilder));
                 target.setExpanded(true);
                 map.put(node, target);
 
