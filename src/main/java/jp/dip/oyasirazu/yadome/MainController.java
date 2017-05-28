@@ -1,8 +1,10 @@
 package jp.dip.oyasirazu.yadome;
 
 import java.io.IOException;
+import java.lang.Thread;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.ServiceLoader;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -49,6 +51,17 @@ public class MainController {
         //        Charset.forName(CHARSET_DEFAULT));
 
         //label.setText(content);
+    }
+
+    @FXML
+    private void onChooseDisplayBuilder() {
+        ServiceLoader<DisplayBuilder> loader = ServiceLoader.load(
+                DisplayBuilder.class,
+                Thread.currentThread().getContextClassLoader());
+
+        for (DisplayBuilder plugin : loader) {
+            System.out.println(plugin.getClass());
+        }
     }
 
     private void initializeTreeView() {

@@ -18,6 +18,11 @@
                         <MenuItem text="Open" onAction="#onFileOpen" />
                     </items>
                 </Menu>
+                <Menu text="View">
+                    <items>
+                        <MenuItem text="ChooseDisplayBuilder" onAction="#onChooseDisplayBuilder" />
+                    </items>
+                </Menu>
             </menus>
         </MenuBar>
     </top>
