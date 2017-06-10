@@ -4,16 +4,22 @@ import java.io.IOException;
 import java.lang.Thread;
 import java.nio.file.Path;
 import java.util.Optional;
-import java.util.ServiceLoader;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
+
+import jp.dip.oyasirazu.yadome.plugins.DisplayBuilderDefault;
+
 
 /**
  * MainController
@@ -29,6 +35,12 @@ public class MainController {
 
     @FXML
     private Label label;
+
+    @FXML
+    private Menu view;
+
+    // ツリー描画時に使われる DisplayBuilder
+    private DisplayBuilder usingDisplayBuilder = new DisplayBuilderDefault();
 
     @FXML
     private void onFileOpen()
@@ -53,20 +65,25 @@ public class MainController {
         //label.setText(content);
     }
 
-    @FXML
-    private void onChooseDisplayBuilder() {
-        ServiceLoader<DisplayBuilder> loader = ServiceLoader.load(
-                DisplayBuilder.class,
-                Thread.currentThread().getContextClassLoader());
+    public void setAvailablePlugins(Iterable<DisplayBuilder> displayBuilders) {
+        for (DisplayBuilder plugin : displayBuilders) {
+            MenuItem menuItem = new MenuItem(plugin.getClass().getName());
 
-        for (DisplayBuilder plugin : loader) {
-            System.out.println(plugin.getClass());
+            menuItem.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent e) {
+                    usingDisplayBuilder = plugin;
+                    initializeTreeView();
+                }
+            });
+
+            view.getItems().add(menuItem);
         }
     }
 
     private void initializeTreeView() {
         TreeItem<YadomeViewData> treeViewRoot =
-                application.buildTreeItem();
+                application.buildTreeItem(usingDisplayBuilder);
         treeView.setRoot(treeViewRoot);
     }
 

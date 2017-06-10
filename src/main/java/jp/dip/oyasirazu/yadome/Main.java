@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.ServiceLoader;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -46,11 +47,10 @@ public class Main extends Application {
         yadome = new Yadome(xmlFilePath);
     }
 
-    public TreeItem<YadomeViewData> buildTreeItem() {
+    public TreeItem<YadomeViewData> buildTreeItem(DisplayBuilder displayBuilder) {
 
         // ノードから TreeItem への紐づけを記憶する Map を作成
         Map<Node, TreeItem<YadomeViewData>> map = new HashMap<>();
-        DisplayBuilder displayBuilder = new DisplayBuilder(){};
 
         yadome.walkTree(new NodeVisitor() {
             @Override
@@ -87,6 +87,12 @@ public class Main extends Application {
 
         MainController controller = (MainController) loader.getController();
         controller.setApplication(this);
+
+        // プラグイン一覧取得
+        ServiceLoader<DisplayBuilder> displayBuilders = ServiceLoader.load(
+                DisplayBuilder.class,
+                Thread.currentThread().getContextClassLoader());
+        controller.setAvailablePlugins(displayBuilders);
 
         stage.setScene(new Scene(root));
         stage.setTitle("Yadome");
