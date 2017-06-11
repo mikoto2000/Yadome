@@ -39,4 +39,8 @@ public interface DisplayBuilder {
                         + node.getTextContent() + " ]";
         }
     }
+
+    default public boolean isExclude(Node node) {
+        return false;
+    }
 }

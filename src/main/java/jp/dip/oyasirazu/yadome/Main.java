@@ -53,10 +53,14 @@ public class Main extends Application {
         Map<Node, TreeItem<YadomeViewData>> map = new HashMap<>();
 
         yadome.walkTree(new NodeVisitor() {
+
+            // 空白文字しかないテキストノードは無視する。
+            // displayBuilder で exclude 指定されているノードは無視する。
             @Override
             public NodeVisitResult visitNode(Node node) {
-                if (node.getNodeType() == Node.TEXT_NODE
-                        && node.getTextContent().trim().isEmpty()) {
+                if ((node.getNodeType() == Node.TEXT_NODE
+                        && node.getTextContent().trim().isEmpty())
+                        || displayBuilder.isExclude(node)) {
                     return NodeVisitResult.CONTINUE;
                 }
 
