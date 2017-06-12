@@ -30,6 +30,14 @@ public class Main extends Application {
 
     private Stage stage;
 
+    public boolean isOpendArxml() {
+        if (yadome != null) {
+            return true;
+        }
+
+        return false;
+    }
+
     public Optional<Path> openFileChooser() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("File Chooser Dialog");

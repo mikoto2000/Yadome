@@ -73,7 +73,9 @@ public class MainController {
                 @Override
                 public void handle(ActionEvent e) {
                     usingDisplayBuilder = plugin;
-                    initializeTreeView();
+                    if (application.isOpendArxml()) {
+                        initializeTreeView();
+                    }
                 }
             });
 
