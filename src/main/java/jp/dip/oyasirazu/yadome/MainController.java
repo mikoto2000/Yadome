@@ -86,6 +86,10 @@ public class MainController {
     private void initializeTreeView() {
         TreeItem<YadomeViewData> treeViewRoot =
                 application.buildTreeItem(usingDisplayBuilder);
+
+        treeView.setCellFactory((TreeView<YadomeViewData> p) ->
+                usingDisplayBuilder.getCellFactory());
+
         treeView.setRoot(treeViewRoot);
     }
 
