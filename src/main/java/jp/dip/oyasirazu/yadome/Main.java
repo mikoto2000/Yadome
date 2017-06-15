@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.prefs.Preferences;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -25,6 +26,13 @@ import org.xml.sax.SAXException;
  * Main
  */
 public class Main extends Application {
+
+    private static final String KEY_STAGE_X = "stageX";
+    private static final String KEY_STAGE_Y = "stageY";
+    private static final String KEY_STAGE_WIDTH = "stageWidth";
+    private static final String KEY_STAGE_HEIGHT = "stageHeight";
+
+    private Preferences prefs = Preferences.userNodeForPackage(this.getClass());
 
     private Yadome yadome;
 
@@ -94,6 +102,8 @@ public class Main extends Application {
     public void start(Stage stage) throws IOException {
         this.stage = stage;
 
+        loadStatus();
+
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Main.fxml"));;
         Pane root = loader.load();
 
@@ -108,7 +118,40 @@ public class Main extends Application {
 
         stage.setScene(new Scene(root));
         stage.setTitle("Yadome");
+
+        stage.setOnCloseRequest(event -> saveStatus());
+
         stage.show();
+    }
+
+    private void saveStatus() {
+        prefs.putInt(KEY_STAGE_X, (int) stage.getX());
+        prefs.putInt(KEY_STAGE_Y, (int) stage.getY());
+        prefs.putInt(KEY_STAGE_WIDTH, (int) stage.getWidth());
+        prefs.putInt(KEY_STAGE_HEIGHT, (int) stage.getHeight());
+    }
+
+    private void loadStatus() {
+        int x = prefs.getInt(KEY_STAGE_X, -1);
+        int y = prefs.getInt(KEY_STAGE_Y, -1);
+        int width = prefs.getInt(KEY_STAGE_WIDTH, -1);
+        int height = prefs.getInt(KEY_STAGE_HEIGHT, -1);
+
+        if (x >= 0) {
+            stage.setX(x);
+        }
+
+        if (y >= 0) {
+            stage.setY(y);
+        }
+
+        if (width >= 0) {
+            stage.setWidth(width);
+        }
+
+        if (height >= 0) {
+            stage.setHeight(height);
+        }
     }
 }
 
