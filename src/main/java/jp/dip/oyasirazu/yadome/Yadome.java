@@ -10,6 +10,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import lombok.Getter;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -48,6 +49,14 @@ public class Yadome {
             return NodeVisitResult.TERMINATE;
         } else if (visitResult == NodeVisitResult.SKIP_SUBTREE) {
             return NodeVisitResult.CONTINUE;
+        }
+
+        NamedNodeMap attrs = target.getAttributes();
+        if (attrs != null) {
+            int attrsCount = attrs.getLength();
+            for (int i = 0; i < attrsCount; i++) {
+                walkTreeP(attrs.item(i), visitor);
+            }
         }
 
         NodeList children = target.getChildNodes();

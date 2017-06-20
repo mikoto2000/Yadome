@@ -19,6 +19,7 @@ import javafx.stage.Stage;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -85,10 +86,19 @@ public class Main extends Application {
                 target.setExpanded(true);
                 map.put(node, target);
 
-                TreeItem<YadomeViewData> parent =
-                        map.get(node.getParentNode());
-                if (parent != null) {
-                    parent.getChildren().add(target);
+                if (node.getNodeType() != Node.ATTRIBUTE_NODE) {
+                    TreeItem<YadomeViewData> parent =
+                            map.get(node.getParentNode());
+                    if (parent != null) {
+                        parent.getChildren().add(target);
+                    }
+                } else {
+                    Attr attr = (Attr)node;
+                    TreeItem<YadomeViewData> owner =
+                            map.get(attr.getOwnerElement());
+                    if (owner != null) {
+                        owner.getChildren().add(target);
+                    }
                 }
 
                 return NodeVisitResult.CONTINUE;

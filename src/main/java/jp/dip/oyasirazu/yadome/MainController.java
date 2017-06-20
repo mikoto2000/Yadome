@@ -87,6 +87,8 @@ public class MainController {
         TreeItem<YadomeViewData> treeViewRoot =
                 application.buildTreeItem(usingDisplayBuilder);
 
+        treeView.setEditable(true);
+
         treeView.setCellFactory((TreeView<YadomeViewData> p) ->
                 usingDisplayBuilder.getCellFactory());
 
