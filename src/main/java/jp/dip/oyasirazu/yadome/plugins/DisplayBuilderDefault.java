@@ -176,16 +176,74 @@ public class DisplayBuilderDefault implements DisplayBuilder {
                 });
                 insertBefore.getItems().add(insertBeforeAttr);
             }
-
-            Menu addChild = new Menu("子として追加");
-            MenuItem addChildElement = new MenuItem("Element");
-            addChildElement.setOnAction((ActionEvent e) -> {
-                data.getNode().appendChild(data.getNode().getOwnerDocument().createElement("element"));
-            });
-            addChild.getItems().add(addChildElement);
-
             items.add(insertBefore);
-            items.add(addChild);
+
+            if (data.getNode().getNodeType() == Node.ELEMENT_NODE) {
+                Menu addChild = new Menu("子として追加");
+
+                MenuItem addChildElement = new MenuItem("Element");
+                addChildElement.setOnAction((ActionEvent e) -> {
+                    Element elem = data.getNode().getOwnerDocument().createElement("element");
+                    data.getNode().appendChild(elem);
+
+                    YadomeViewData yvd = new YadomeViewData(elem);
+                    TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
+
+                    this.getTreeItem().getChildren().add(ti);
+                });
+                addChild.getItems().add(addChildElement);
+
+                MenuItem addChildAttribute = new MenuItem("Attribute");
+                addChildAttribute.setOnAction((ActionEvent e) -> {
+                    Attr attr = data.getNode().getOwnerDocument().createAttribute("Attr");
+                    // TODO: ここで作られるテキストノードを TreeItem として登録する
+                    ((Element)data.getNode()).setAttribute("Attribute", "value");
+
+                    YadomeViewData yvd = new YadomeViewData(attr);
+                    TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
+
+                    this.getTreeItem().getChildren().add(ti);
+                });
+                addChild.getItems().add(addChildAttribute);
+
+                MenuItem addChildText = new MenuItem("Text");
+                addChildText.setOnAction((ActionEvent e) -> {
+                    Text text = data.getNode().getOwnerDocument().createTextNode("Text");
+                    data.getNode().appendChild(text);
+
+                    YadomeViewData yvd = new YadomeViewData(text);
+                    TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
+
+                    this.getTreeItem().getChildren().add(ti);
+                });
+                addChild.getItems().add(addChildText);
+
+                MenuItem addChildComment = new MenuItem("Comment");
+                addChildComment.setOnAction((ActionEvent e) -> {
+                    Comment comment = data.getNode().getOwnerDocument().createComment("Comment");
+                    data.getNode().appendChild(comment);
+
+                    YadomeViewData yvd = new YadomeViewData(comment);
+                    TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
+
+                    this.getTreeItem().getChildren().add(ti);
+                });
+                addChild.getItems().add(addChildComment);
+
+                MenuItem addChildCdata = new MenuItem("CDATA");
+                addChildCdata.setOnAction((ActionEvent e) -> {
+                    CDATASection cdata = data.getNode().getOwnerDocument().createCDATASection("CDATA");
+                    data.getNode().appendChild(cdata);
+
+                    YadomeViewData yvd = new YadomeViewData(cdata);
+                    TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
+
+                    this.getTreeItem().getChildren().add(ti);
+                });
+                addChild.getItems().add(addChildCdata);
+
+                items.add(addChild);
+            }
 
             setContextMenu(cm);
 
