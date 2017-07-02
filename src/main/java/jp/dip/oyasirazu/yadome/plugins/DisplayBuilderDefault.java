@@ -159,15 +159,14 @@ public class DisplayBuilderDefault implements DisplayBuilder {
             if (data.getNode().getNodeType() == Node.ATTRIBUTE_NODE) {
                 MenuItem insertBeforeAttr = new MenuItem("Attr");
                 insertBeforeAttr.setOnAction((ActionEvent e) -> {
-                    Attr attr = data.getNode().getOwnerDocument().createAttribute("Attribute");
                     System.out.println(data.getNode());
-                    Node parentNode = ((Attr)data.getNode()).getOwnerElement();
+                    Element parentNode = (Element)((Attr)data.getNode()).getOwnerElement();
                     if (parentNode == null) {
                         return;
                     }
+                    parentNode.setAttribute("Attribute", "value");
 
-                    parentNode.getAttributes().setNamedItem(attr);
-                    YadomeViewData yvd = new YadomeViewData(attr);
+                    YadomeViewData yvd = new YadomeViewData(((Element)data.getNode()).getAttributes().getNamedItem("Attribute"));
                     TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
                     TreeItem<YadomeViewData> tiParent = this.getTreeItem().getParent();
 
@@ -195,11 +194,10 @@ public class DisplayBuilderDefault implements DisplayBuilder {
 
                 MenuItem addChildAttribute = new MenuItem("Attribute");
                 addChildAttribute.setOnAction((ActionEvent e) -> {
-                    Attr attr = data.getNode().getOwnerDocument().createAttribute("Attr");
                     // TODO: ここで作られるテキストノードを TreeItem として登録する
                     ((Element)data.getNode()).setAttribute("Attribute", "value");
 
-                    YadomeViewData yvd = new YadomeViewData(attr);
+                    YadomeViewData yvd = new YadomeViewData(((Element)data.getNode()).getAttributes().getNamedItem("Attribute"));
                     TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
 
                     this.getTreeItem().getChildren().add(ti);
