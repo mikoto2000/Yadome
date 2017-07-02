@@ -12,11 +12,8 @@ import org.w3c.dom.Node;
 @Data
 public class YadomeViewData {
     private Node node;
+    private Yadome yadome;
     private DisplayBuilder displayBuilder;
-
-    public YadomeViewData(Node node) {
-        this(node, new DisplayBuilder(){});
-    }
 
     @Override
     public String toString() {

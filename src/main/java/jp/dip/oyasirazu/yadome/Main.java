@@ -82,7 +82,7 @@ public class Main extends Application {
                 }
 
                 TreeItem<YadomeViewData> target =
-                        new TreeItem<YadomeViewData>(new YadomeViewData(node, displayBuilder));
+                        new TreeItem<YadomeViewData>(new YadomeViewData(node, yadome, displayBuilder));
                 target.setExpanded(true);
                 map.put(node, target);
 

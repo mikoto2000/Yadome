@@ -89,7 +89,7 @@ public class DisplayBuilderDefault implements DisplayBuilder {
                     }
 
                     parentNode.insertBefore(elem, data.getNode());
-                    YadomeViewData yvd = new YadomeViewData(elem);
+                    YadomeViewData yvd = new YadomeViewData(elem, data.getYadome(), data.getDisplayBuilder());
                     TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
                     TreeItem<YadomeViewData> tiParent = this.getTreeItem().getParent();
 
@@ -108,7 +108,7 @@ public class DisplayBuilderDefault implements DisplayBuilder {
                     }
 
                     parentNode.insertBefore(text, data.getNode());
-                    YadomeViewData yvd = new YadomeViewData(text);
+                    YadomeViewData yvd = new YadomeViewData(text, data.getYadome(), data.getDisplayBuilder());
                     TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
                     TreeItem<YadomeViewData> tiParent = this.getTreeItem().getParent();
 
@@ -127,7 +127,7 @@ public class DisplayBuilderDefault implements DisplayBuilder {
                     }
 
                     parentNode.insertBefore(comment, data.getNode());
-                    YadomeViewData yvd = new YadomeViewData(comment);
+                    YadomeViewData yvd = new YadomeViewData(comment, data.getYadome(), data.getDisplayBuilder());
                     TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
                     TreeItem<YadomeViewData> tiParent = this.getTreeItem().getParent();
 
@@ -146,7 +146,7 @@ public class DisplayBuilderDefault implements DisplayBuilder {
                     }
 
                     parentNode.insertBefore(cdata, data.getNode());
-                    YadomeViewData yvd = new YadomeViewData(cdata);
+                    YadomeViewData yvd = new YadomeViewData(cdata, data.getYadome(), data.getDisplayBuilder());
                     TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
                     TreeItem<YadomeViewData> tiParent = this.getTreeItem().getParent();
 
@@ -166,7 +166,7 @@ public class DisplayBuilderDefault implements DisplayBuilder {
                     }
                     parentNode.setAttribute("Attribute", "value");
 
-                    YadomeViewData yvd = new YadomeViewData(((Element)data.getNode()).getAttributes().getNamedItem("Attribute"));
+                    YadomeViewData yvd = new YadomeViewData(((Element)data.getNode()).getAttributes().getNamedItem("Attribute"), data.getYadome(), data.getDisplayBuilder());
                     TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
                     TreeItem<YadomeViewData> tiParent = this.getTreeItem().getParent();
 
@@ -185,7 +185,7 @@ public class DisplayBuilderDefault implements DisplayBuilder {
                     Element elem = data.getNode().getOwnerDocument().createElement("element");
                     data.getNode().appendChild(elem);
 
-                    YadomeViewData yvd = new YadomeViewData(elem);
+                    YadomeViewData yvd = new YadomeViewData(elem, data.getYadome(), data.getDisplayBuilder());
                     TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
 
                     this.getTreeItem().getChildren().add(ti);
@@ -197,7 +197,7 @@ public class DisplayBuilderDefault implements DisplayBuilder {
                     // TODO: ここで作られるテキストノードを TreeItem として登録する
                     ((Element)data.getNode()).setAttribute("Attribute", "value");
 
-                    YadomeViewData yvd = new YadomeViewData(((Element)data.getNode()).getAttributes().getNamedItem("Attribute"));
+                    YadomeViewData yvd = new YadomeViewData(((Element)data.getNode()).getAttributes().getNamedItem("Attribute"), data.getYadome(), data.getDisplayBuilder());
                     TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
 
                     this.getTreeItem().getChildren().add(ti);
@@ -209,7 +209,7 @@ public class DisplayBuilderDefault implements DisplayBuilder {
                     Text text = data.getNode().getOwnerDocument().createTextNode("Text");
                     data.getNode().appendChild(text);
 
-                    YadomeViewData yvd = new YadomeViewData(text);
+                    YadomeViewData yvd = new YadomeViewData(text, data.getYadome(), data.getDisplayBuilder());
                     TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
 
                     this.getTreeItem().getChildren().add(ti);
@@ -221,7 +221,7 @@ public class DisplayBuilderDefault implements DisplayBuilder {
                     Comment comment = data.getNode().getOwnerDocument().createComment("Comment");
                     data.getNode().appendChild(comment);
 
-                    YadomeViewData yvd = new YadomeViewData(comment);
+                    YadomeViewData yvd = new YadomeViewData(comment, data.getYadome(), data.getDisplayBuilder());
                     TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
 
                     this.getTreeItem().getChildren().add(ti);
@@ -233,7 +233,7 @@ public class DisplayBuilderDefault implements DisplayBuilder {
                     CDATASection cdata = data.getNode().getOwnerDocument().createCDATASection("CDATA");
                     data.getNode().appendChild(cdata);
 
-                    YadomeViewData yvd = new YadomeViewData(cdata);
+                    YadomeViewData yvd = new YadomeViewData(cdata, data.getYadome(), data.getDisplayBuilder());
                     TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
 
                     this.getTreeItem().getChildren().add(ti);
