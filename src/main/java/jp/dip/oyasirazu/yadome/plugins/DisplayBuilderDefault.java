@@ -1,6 +1,8 @@
 package jp.dip.oyasirazu.yadome.plugins;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javafx.event.ActionEvent;
 import javafx.scene.control.ContextMenu;
@@ -12,6 +14,9 @@ import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.util.StringConverter;
 
 import jp.dip.oyasirazu.yadome.DisplayBuilder;
+import jp.dip.oyasirazu.yadome.NodeVisitResult;
+import jp.dip.oyasirazu.yadome.NodeVisitor;
+import jp.dip.oyasirazu.yadome.Yadome;
 import jp.dip.oyasirazu.yadome.YadomeViewData;
 
 import org.w3c.dom.Attr;
@@ -82,76 +87,59 @@ public class DisplayBuilderDefault implements DisplayBuilder {
                 MenuItem insertBeforeElement = new MenuItem("Element");
                 insertBeforeElement.setOnAction((ActionEvent e) -> {
                     Element elem = data.getNode().getOwnerDocument().createElement("element");
-                    System.out.println(data.getNode());
                     Node parentNode = data.getNode().getParentNode();
                     if (parentNode == null) {
                         return;
                     }
-
                     parentNode.insertBefore(elem, data.getNode());
-                    YadomeViewData yvd = new YadomeViewData(elem, data.getYadome(), data.getDisplayBuilder());
-                    TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
-                    TreeItem<YadomeViewData> tiParent = this.getTreeItem().getParent();
 
-                    int index = tiParent.getChildren().indexOf(this.getTreeItem());
-                    tiParent.getChildren().add(index, ti);
+                    // 前に挿入した場合、その親のノードから更新する必要があるので、親を探して updateTree に渡す。
+                    updateTree(this.getTreeItem().getParent());
                 });
                 insertBefore.getItems().add(insertBeforeElement);
 
                 MenuItem insertBeforeText = new MenuItem("Text");
                 insertBeforeText.setOnAction((ActionEvent e) -> {
                     Text text = data.getNode().getOwnerDocument().createTextNode("Text");
-                    System.out.println(data.getNode());
                     Node parentNode = data.getNode().getParentNode();
                     if (parentNode == null) {
                         return;
                     }
 
                     parentNode.insertBefore(text, data.getNode());
-                    YadomeViewData yvd = new YadomeViewData(text, data.getYadome(), data.getDisplayBuilder());
-                    TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
-                    TreeItem<YadomeViewData> tiParent = this.getTreeItem().getParent();
 
-                    int index = tiParent.getChildren().indexOf(this.getTreeItem());
-                    tiParent.getChildren().add(index, ti);
+                    // 前に挿入した場合、その親のノードから更新する必要があるので、親を探して updateTree に渡す。
+                    updateTree(this.getTreeItem().getParent());
                 });
                 insertBefore.getItems().add(insertBeforeText);
 
                 MenuItem insertBeforeComment = new MenuItem("Comment");
                 insertBeforeComment.setOnAction((ActionEvent e) -> {
                     Comment comment = data.getNode().getOwnerDocument().createComment("Comment");
-                    System.out.println(data.getNode());
                     Node parentNode = data.getNode().getParentNode();
                     if (parentNode == null) {
                         return;
                     }
 
                     parentNode.insertBefore(comment, data.getNode());
-                    YadomeViewData yvd = new YadomeViewData(comment, data.getYadome(), data.getDisplayBuilder());
-                    TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
-                    TreeItem<YadomeViewData> tiParent = this.getTreeItem().getParent();
 
-                    int index = tiParent.getChildren().indexOf(this.getTreeItem());
-                    tiParent.getChildren().add(index, ti);
+                    // 前に挿入した場合、その親のノードから更新する必要があるので、親を探して updateTree に渡す。
+                    updateTree(this.getTreeItem().getParent());
                 });
                 insertBefore.getItems().add(insertBeforeComment);
 
                 MenuItem insertBeforeCdata = new MenuItem("CDATA");
                 insertBeforeCdata.setOnAction((ActionEvent e) -> {
                     CDATASection cdata = data.getNode().getOwnerDocument().createCDATASection("CDATA");
-                    System.out.println(data.getNode());
                     Node parentNode = data.getNode().getParentNode();
                     if (parentNode == null) {
                         return;
                     }
 
                     parentNode.insertBefore(cdata, data.getNode());
-                    YadomeViewData yvd = new YadomeViewData(cdata, data.getYadome(), data.getDisplayBuilder());
-                    TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
-                    TreeItem<YadomeViewData> tiParent = this.getTreeItem().getParent();
 
-                    int index = tiParent.getChildren().indexOf(this.getTreeItem());
-                    tiParent.getChildren().add(index, ti);
+                    // 前に挿入した場合、その親のノードから更新する必要があるので、親を探して updateTree に渡す。
+                    updateTree(this.getTreeItem().getParent());
                 });
                 insertBefore.getItems().add(insertBeforeCdata);
             }
@@ -159,19 +147,14 @@ public class DisplayBuilderDefault implements DisplayBuilder {
             if (data.getNode().getNodeType() == Node.ATTRIBUTE_NODE) {
                 MenuItem insertBeforeAttr = new MenuItem("Attr");
                 insertBeforeAttr.setOnAction((ActionEvent e) -> {
-                    System.out.println(data.getNode());
                     Element parentNode = (Element)((Attr)data.getNode()).getOwnerElement();
                     if (parentNode == null) {
                         return;
                     }
                     parentNode.setAttribute("Attribute", "value");
 
-                    YadomeViewData yvd = new YadomeViewData(((Element)data.getNode()).getAttributes().getNamedItem("Attribute"), data.getYadome(), data.getDisplayBuilder());
-                    TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
-                    TreeItem<YadomeViewData> tiParent = this.getTreeItem().getParent();
-
-                    int index = tiParent.getChildren().indexOf(this.getTreeItem());
-                    tiParent.getChildren().add(index, ti);
+                    // 前に挿入した場合、その親のノードから更新する必要があるので、親を探して updateTree に渡す。
+                    updateTree(this.getTreeItem().getParent());
                 });
                 insertBefore.getItems().add(insertBeforeAttr);
             }
@@ -185,10 +168,8 @@ public class DisplayBuilderDefault implements DisplayBuilder {
                     Element elem = data.getNode().getOwnerDocument().createElement("element");
                     data.getNode().appendChild(elem);
 
-                    YadomeViewData yvd = new YadomeViewData(elem, data.getYadome(), data.getDisplayBuilder());
-                    TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
-
-                    this.getTreeItem().getChildren().add(ti);
+                    // 対象 TreeItem を updateTree に渡す。
+                    updateTree(this.getTreeItem());
                 });
                 addChild.getItems().add(addChildElement);
 
@@ -197,10 +178,8 @@ public class DisplayBuilderDefault implements DisplayBuilder {
                     // TODO: ここで作られるテキストノードを TreeItem として登録する
                     ((Element)data.getNode()).setAttribute("Attribute", "value");
 
-                    YadomeViewData yvd = new YadomeViewData(((Element)data.getNode()).getAttributes().getNamedItem("Attribute"), data.getYadome(), data.getDisplayBuilder());
-                    TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
-
-                    this.getTreeItem().getChildren().add(ti);
+                    // 対象 TreeItem を updateTree に渡す。
+                    updateTree(this.getTreeItem());
                 });
                 addChild.getItems().add(addChildAttribute);
 
@@ -209,10 +188,8 @@ public class DisplayBuilderDefault implements DisplayBuilder {
                     Text text = data.getNode().getOwnerDocument().createTextNode("Text");
                     data.getNode().appendChild(text);
 
-                    YadomeViewData yvd = new YadomeViewData(text, data.getYadome(), data.getDisplayBuilder());
-                    TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
-
-                    this.getTreeItem().getChildren().add(ti);
+                    // 対象 TreeItem を updateTree に渡す。
+                    updateTree(this.getTreeItem());
                 });
                 addChild.getItems().add(addChildText);
 
@@ -221,10 +198,8 @@ public class DisplayBuilderDefault implements DisplayBuilder {
                     Comment comment = data.getNode().getOwnerDocument().createComment("Comment");
                     data.getNode().appendChild(comment);
 
-                    YadomeViewData yvd = new YadomeViewData(comment, data.getYadome(), data.getDisplayBuilder());
-                    TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
-
-                    this.getTreeItem().getChildren().add(ti);
+                    // 対象 TreeItem を updateTree に渡す。
+                    updateTree(this.getTreeItem());
                 });
                 addChild.getItems().add(addChildComment);
 
@@ -233,11 +208,9 @@ public class DisplayBuilderDefault implements DisplayBuilder {
                     CDATASection cdata = data.getNode().getOwnerDocument().createCDATASection("CDATA");
                     data.getNode().appendChild(cdata);
 
-                    YadomeViewData yvd = new YadomeViewData(cdata, data.getYadome(), data.getDisplayBuilder());
-                    TreeItem<YadomeViewData> ti = new TreeItem<>(yvd);
-
-                    this.getTreeItem().getChildren().add(ti);
-                });
+                    // 対象 TreeItem を updateTree に渡す。
+                    updateTree(this.getTreeItem());
+               });
                 addChild.getItems().add(addChildCdata);
 
                 items.add(addChild);
@@ -285,6 +258,73 @@ public class DisplayBuilderDefault implements DisplayBuilder {
                     break;
             }
             setGraphic(t);
+        }
+
+        /**
+         * 対象の TreeItem 以下を更新する。
+         *
+         * 引数で渡された TreeItem 以下のノードを再走査し、 TreeItem の作り直す。
+         * この関数実行後に、 TreeItem インスタンスが新しいものになっているのに注意。
+         * (同一内容の別インスタンスになっている)
+         *
+         * @param treeItem 更新対象の TreeItem
+         */
+        protected void updateTree(TreeItem<YadomeViewData> treeItem) {
+            YadomeViewData data = treeItem.getValue();
+            Yadome yadome = data.getYadome();
+            DisplayBuilder displayBuilder = data.getDisplayBuilder();
+
+            // ノードから TreeItem への紐づけを記憶する Map を作成
+            Map<Node, TreeItem<YadomeViewData>> map = new HashMap<>();
+            yadome.walkTree(data.getNode(), new NodeVisitor() {
+
+                // 空白文字しかないテキストノードは無視する。
+                // displayBuilder で exclude 指定されているノードは無視する。
+                @Override
+                public NodeVisitResult visitNode(Node node) {
+                    if ((node.getNodeType() == Node.TEXT_NODE
+                            && node.getTextContent().trim().isEmpty())
+                            || displayBuilder.isExclude(node)) {
+                        return NodeVisitResult.CONTINUE;
+                    }
+
+                    TreeItem<YadomeViewData> target =
+                            new TreeItem<YadomeViewData>(new YadomeViewData(node, yadome, displayBuilder));
+                    target.setExpanded(true);
+                    map.put(node, target);
+
+                    if (node.getNodeType() != Node.ATTRIBUTE_NODE) {
+                        TreeItem<YadomeViewData> parent =
+                                map.get(node.getParentNode());
+                        if (parent != null) {
+                            parent.getChildren().add(target);
+                        }
+                    } else {
+                        Attr attr = (Attr)node;
+                        TreeItem<YadomeViewData> owner =
+                                map.get(attr.getOwnerElement());
+                        if (owner != null) {
+                            owner.getChildren().add(target);
+                        }
+                    }
+
+                    return NodeVisitResult.CONTINUE;
+                }
+            });
+
+            // 今回作った TreeItem
+            TreeItem<YadomeViewData> newTreeItem = map.get(data.getNode());
+
+            // 今ぶら下がっている TreeItem
+            TreeItem<YadomeViewData> oldTreeItem = treeItem;
+
+            // 作った TreeItm の入れ替え
+            oldTreeItem.getChildren().clear();
+
+            // 今ぶら下がっている TreeItem の子要素を、今回作った TreeItem の子要素に入れ替える
+            for (TreeItem<YadomeViewData> item : newTreeItem.getChildren()) {
+                oldTreeItem.getChildren().add(item);
+            }
         }
     }
 }

@@ -40,6 +40,10 @@ public class Yadome {
         walkTreeP(document.getDocumentElement(), visitor);
     }
 
+    public void walkTree(Node node, NodeVisitor visitor) {
+        walkTreeP(node, visitor);
+    }
+
     private NodeVisitResult walkTreeP(
             Node target,
             NodeVisitor visitor) {
