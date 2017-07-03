@@ -1,5 +1,6 @@
 package jp.dip.oyasirazu.yadome.plugins;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,8 +23,11 @@ import jp.dip.oyasirazu.yadome.YadomeViewData;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Comment;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /**
@@ -52,7 +56,58 @@ public class DisplayBuilderDefault implements DisplayBuilder {
 
                     switch (node.getNodeType()) {
                         case Node.ELEMENT_NODE:
+                            Element elem = (Element)node;
+                            if (!elem.getTagName().equals(string)) {
+                                Document document = elem.getOwnerDocument();
+                                Element newElement = document.createElement(string);
+
+                                // 属性の入れ替え
+                                NamedNodeMap nnm = elem.getAttributes();
+                                List<Attr> attrs = new ArrayList<>(nnm.getLength());
+                                for (int i = 0; i < nnm.getLength(); i++) {
+                                    attrs.add((Attr)nnm.item(i));
+                                }
+
+                                for (Attr attr : attrs) {
+                                    elem.removeAttribute(attr.getName());
+                                    newElement.setAttribute(attr.getName(), attr.getValue());
+                                }
+
+                                // 子要素の入れ替え
+                                NodeList nodes = elem.getChildNodes();
+                                List<Node> childs = new ArrayList<>(nodes.getLength());
+                                for (int i = 0; i < nodes.getLength(); i++) {
+                                    Node childNode = nodes.item(i);
+                                    childs.add(childNode);
+                                }
+
+                                for (Node childNode : childs) {
+                                    elem.removeChild(childNode);
+                                    newElement.appendChild(childNode);
+                                }
+
+                                Node parent = elem.getParentNode();
+                                if (elem.getParentNode() != elem.getOwnerDocument()) {
+                                    parent.insertBefore(newElement, elem);
+                                    parent.removeChild(elem);
+                                } else {
+                                    // ルート要素だった場合、
+                                    // YadomeViewData のノード入れ替えまで
+                                    // 行わないとうまく更新されないのでその対応
+                                    parent.removeChild(elem);
+                                    parent.appendChild(newElement);
+                                    getItem().setNode(newElement);
+                                }
+                            }
+                            break;
                         case Node.ATTRIBUTE_NODE:
+                            Attr attr = (Attr)node;
+                            if (!attr.getName().equals(string)) {
+                                String value = attr.getValue();
+                                Element parent = attr.getOwnerElement();
+                                parent.setAttribute(string, value);
+                                parent.removeAttribute(attr.getName());
+                            }
                             break;
                         default:
                             node.setTextContent(string);
@@ -225,6 +280,8 @@ public class DisplayBuilderDefault implements DisplayBuilder {
             Node node = getItem().getNode();
 
             switch (node.getNodeType()) {
+                case Node.ELEMENT_NODE:
+                case Node.ATTRIBUTE_NODE:
                 case Node.TEXT_NODE:
                 case Node.COMMENT_NODE:
                 case Node.CDATA_SECTION_NODE:
@@ -232,6 +289,16 @@ public class DisplayBuilderDefault implements DisplayBuilder {
                     break;
                 default:
                     // do nothing.
+            }
+        }
+
+        @Override
+        public void commitEdit(YadomeViewData data) {
+            super.commitEdit(data);
+            if (this.getTreeItem().getParent() == null) {
+                updateTree(this.getTreeItem());
+            } else {
+                updateTree(this.getTreeItem().getParent());
             }
         }
 
