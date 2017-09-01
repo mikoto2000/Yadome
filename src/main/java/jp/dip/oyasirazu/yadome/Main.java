@@ -19,6 +19,8 @@ import javafx.stage.Stage;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import jp.dip.oyasirazu.yadome.plugins.DefaultNodeVisitor;
+
 import org.w3c.dom.Attr;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -64,48 +66,12 @@ public class Main extends Application {
         yadome = new Yadome(xmlFilePath);
     }
 
-    public TreeItem<YadomeViewData> buildTreeItem(DisplayBuilder displayBuilder) {
+    public TreeItem<YadomeViewData> buildTreeItem() {
 
-        // ノードから TreeItem への紐づけを記憶する Map を作成
-        Map<Node, TreeItem<YadomeViewData>> map = new HashMap<>();
+        DefaultNodeVisitor nodeVisitor = new DefaultNodeVisitor();
+        yadome.walkTree(nodeVisitor);
 
-        yadome.walkTree(new NodeVisitor() {
-
-            // 空白文字しかないテキストノードは無視する。
-            // displayBuilder で exclude 指定されているノードは無視する。
-            @Override
-            public NodeVisitResult visitNode(Node node) {
-                if ((node.getNodeType() == Node.TEXT_NODE
-                        && node.getTextContent().trim().isEmpty())
-                        || displayBuilder.isExclude(node)) {
-                    return NodeVisitResult.CONTINUE;
-                }
-
-                TreeItem<YadomeViewData> target =
-                        new TreeItem<YadomeViewData>(new YadomeViewData(node, yadome, displayBuilder));
-                target.setExpanded(true);
-                map.put(node, target);
-
-                if (node.getNodeType() != Node.ATTRIBUTE_NODE) {
-                    TreeItem<YadomeViewData> parent =
-                            map.get(node.getParentNode());
-                    if (parent != null) {
-                        parent.getChildren().add(target);
-                    }
-                } else {
-                    Attr attr = (Attr)node;
-                    TreeItem<YadomeViewData> owner =
-                            map.get(attr.getOwnerElement());
-                    if (owner != null) {
-                        owner.getChildren().add(target);
-                    }
-                }
-
-                return NodeVisitResult.CONTINUE;
-            }
-        });
-
-        return map.get(yadome.getDocument().getDocumentElement());
+        return nodeVisitor.get(yadome.getDocument().getDocumentElement());
     }
 
     @Override
@@ -121,10 +87,10 @@ public class Main extends Application {
         controller.setApplication(this);
 
         // プラグイン一覧取得
-        ServiceLoader<DisplayBuilder> displayBuilders = ServiceLoader.load(
-                DisplayBuilder.class,
+        ServiceLoader<YadomeCellFactory> yadomeCellFactories = ServiceLoader.load(
+                YadomeCellFactory.class,
                 Thread.currentThread().getContextClassLoader());
-        controller.setAvailablePlugins(displayBuilders);
+        controller.setAvailablePlugins(yadomeCellFactories);
 
         stage.setScene(new Scene(root));
         stage.setTitle("Yadome");
@@ -162,6 +128,10 @@ public class Main extends Application {
         if (height >= 0) {
             stage.setHeight(height);
         }
+    }
+
+    public Yadome getYadome() {
+        return yadome;
     }
 }
 

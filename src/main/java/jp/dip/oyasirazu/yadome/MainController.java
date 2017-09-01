@@ -16,10 +16,9 @@ import javafx.scene.control.TreeView;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import jp.dip.oyasirazu.yadome.plugins.DefaultYadomeTreeCell;
+
 import org.xml.sax.SAXException;
-
-import jp.dip.oyasirazu.yadome.plugins.DisplayBuilderDefault;
-
 
 /**
  * MainController
@@ -38,9 +37,6 @@ public class MainController {
 
     @FXML
     private Menu view;
-
-    // ツリー描画時に使われる DisplayBuilder
-    private DisplayBuilder usingDisplayBuilder = new DisplayBuilderDefault();
 
     @FXML
     private void onFileOpen()
@@ -65,14 +61,15 @@ public class MainController {
         //label.setText(content);
     }
 
-    public void setAvailablePlugins(Iterable<DisplayBuilder> displayBuilders) {
-        for (DisplayBuilder plugin : displayBuilders) {
+    public void setAvailablePlugins(Iterable<YadomeCellFactory> yadomeCellFactories) {
+        for (YadomeCellFactory plugin : yadomeCellFactories) {
             MenuItem menuItem = new MenuItem(plugin.getClass().getName());
 
             menuItem.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent e) {
-                    usingDisplayBuilder = plugin;
+                    treeView.setCellFactory((TreeView<YadomeViewData> p) ->
+                            plugin.newInstance(application.getYadome()));
                     if (application.isOpendArxml()) {
                         initializeTreeView();
                     }
@@ -85,12 +82,12 @@ public class MainController {
 
     private void initializeTreeView() {
         TreeItem<YadomeViewData> treeViewRoot =
-                application.buildTreeItem(usingDisplayBuilder);
+                application.buildTreeItem();
 
         treeView.setEditable(true);
 
         treeView.setCellFactory((TreeView<YadomeViewData> p) ->
-                usingDisplayBuilder.getCellFactory());
+                new DefaultYadomeTreeCell(application.getYadome()));
 
         treeView.setRoot(treeViewRoot);
     }
@@ -98,5 +95,5 @@ public class MainController {
     public void setApplication(Main application) {
         this.application = application;
     }
-
 }
+

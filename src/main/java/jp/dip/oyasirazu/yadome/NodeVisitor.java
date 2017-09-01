@@ -8,3 +8,4 @@ import org.w3c.dom.Node;
 public interface NodeVisitor {
     public NodeVisitResult visitNode(Node node);
 }
+

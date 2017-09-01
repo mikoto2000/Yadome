@@ -12,12 +12,16 @@ import org.w3c.dom.Node;
 @Data
 public class YadomeViewData {
     private Node node;
-    private Yadome yadome;
-    private DisplayBuilder displayBuilder;
 
     @Override
     public String toString() {
-        return displayBuilder.buildString(node);
+        switch (node.getNodeType()) {
+            case Node.ELEMENT_NODE:
+            case Node.ATTRIBUTE_NODE:
+                return node.getNodeName();
+            default:
+                return node.getTextContent();
+        }
     }
 }
 
