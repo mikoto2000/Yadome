@@ -1,5 +1,6 @@
 package jp.dip.oyasirazu.yadome;
 
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.cell.TextFieldTreeCell;
 
 import jp.dip.oyasirazu.yadome.YadomeViewData;

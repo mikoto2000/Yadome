@@ -46,148 +46,8 @@ public class DefaultYadomeTreeCell extends YadomeTreeCell {
 
         updateHeader();
 
-        ContextMenu cm = new ContextMenu();
-        List<MenuItem> items = cm.getItems();
-
-        Menu insertBefore = new Menu("前に挿入");
-
-        if (data.getNode().getParentNode() != null
-                && (data.getNode().getParentNode().getNodeType() == Node.ELEMENT_NODE
-                    || data.getNode().getParentNode().getNodeType() == Node.TEXT_NODE
-                    || data.getNode().getParentNode().getNodeType() == Node.COMMENT_NODE
-                    || data.getNode().getParentNode().getNodeType() == Node.CDATA_SECTION_NODE
-                   )) {
-            MenuItem insertBeforeElement = new MenuItem("Element");
-            insertBeforeElement.setOnAction((ActionEvent e) -> {
-                Element elem = data.getNode().getOwnerDocument().createElement("element");
-                Node parentNode = data.getNode().getParentNode();
-                if (parentNode == null) {
-                    return;
-                }
-                parentNode.insertBefore(elem, data.getNode());
-
-                // 前に挿入した場合、その親のノードから更新する必要があるので、親を探して updateTree に渡す。
-                updateTree(this.getTreeItem().getParent());
-            });
-            insertBefore.getItems().add(insertBeforeElement);
-
-            MenuItem insertBeforeText = new MenuItem("Text");
-            insertBeforeText.setOnAction((ActionEvent e) -> {
-                Text text = data.getNode().getOwnerDocument().createTextNode("Text");
-                Node parentNode = data.getNode().getParentNode();
-                if (parentNode == null) {
-                    return;
-                }
-
-                parentNode.insertBefore(text, data.getNode());
-
-                // 前に挿入した場合、その親のノードから更新する必要があるので、親を探して updateTree に渡す。
-                updateTree(this.getTreeItem().getParent());
-            });
-            insertBefore.getItems().add(insertBeforeText);
-
-            MenuItem insertBeforeComment = new MenuItem("Comment");
-            insertBeforeComment.setOnAction((ActionEvent e) -> {
-                Comment comment = data.getNode().getOwnerDocument().createComment("Comment");
-                Node parentNode = data.getNode().getParentNode();
-                if (parentNode == null) {
-                    return;
-                }
-
-                parentNode.insertBefore(comment, data.getNode());
-
-                // 前に挿入した場合、その親のノードから更新する必要があるので、親を探して updateTree に渡す。
-                updateTree(this.getTreeItem().getParent());
-            });
-            insertBefore.getItems().add(insertBeforeComment);
-
-            MenuItem insertBeforeCdata = new MenuItem("CDATA");
-            insertBeforeCdata.setOnAction((ActionEvent e) -> {
-                CDATASection cdata = data.getNode().getOwnerDocument().createCDATASection("CDATA");
-                Node parentNode = data.getNode().getParentNode();
-                if (parentNode == null) {
-                    return;
-                }
-
-                parentNode.insertBefore(cdata, data.getNode());
-
-                // 前に挿入した場合、その親のノードから更新する必要があるので、親を探して updateTree に渡す。
-                updateTree(this.getTreeItem().getParent());
-            });
-            insertBefore.getItems().add(insertBeforeCdata);
-                   }
-
-        if (data.getNode().getNodeType() == Node.ATTRIBUTE_NODE) {
-            MenuItem insertBeforeAttr = new MenuItem("Attr");
-            insertBeforeAttr.setOnAction((ActionEvent e) -> {
-                Element parentNode = (Element)((Attr)data.getNode()).getOwnerElement();
-                if (parentNode == null) {
-                    return;
-                }
-                parentNode.setAttribute("Attribute", "value");
-
-                // 前に挿入した場合、その親のノードから更新する必要があるので、親を探して updateTree に渡す。
-                updateTree(this.getTreeItem().getParent());
-            });
-            insertBefore.getItems().add(insertBeforeAttr);
-        }
-        items.add(insertBefore);
-
-        if (data.getNode().getNodeType() == Node.ELEMENT_NODE) {
-            Menu addChild = new Menu("子として追加");
-
-            MenuItem addChildElement = new MenuItem("Element");
-            addChildElement.setOnAction((ActionEvent e) -> {
-                Element elem = data.getNode().getOwnerDocument().createElement("element");
-                data.getNode().appendChild(elem);
-
-                // 対象 TreeItem を updateTree に渡す。
-                updateTree(this.getTreeItem());
-            });
-            addChild.getItems().add(addChildElement);
-
-            MenuItem addChildAttribute = new MenuItem("Attribute");
-            addChildAttribute.setOnAction((ActionEvent e) -> {
-                // TODO: ここで作られるテキストノードを TreeItem として登録する
-                ((Element)data.getNode()).setAttribute("Attribute", "value");
-
-                // 対象 TreeItem を updateTree に渡す。
-                updateTree(this.getTreeItem());
-            });
-            addChild.getItems().add(addChildAttribute);
-
-            MenuItem addChildText = new MenuItem("Text");
-            addChildText.setOnAction((ActionEvent e) -> {
-                Text text = data.getNode().getOwnerDocument().createTextNode("Text");
-                data.getNode().appendChild(text);
-
-                // 対象 TreeItem を updateTree に渡す。
-                updateTree(this.getTreeItem());
-            });
-            addChild.getItems().add(addChildText);
-
-            MenuItem addChildComment = new MenuItem("Comment");
-            addChildComment.setOnAction((ActionEvent e) -> {
-                Comment comment = data.getNode().getOwnerDocument().createComment("Comment");
-                data.getNode().appendChild(comment);
-
-                // 対象 TreeItem を updateTree に渡す。
-                updateTree(this.getTreeItem());
-            });
-            addChild.getItems().add(addChildComment);
-
-            MenuItem addChildCdata = new MenuItem("CDATA");
-            addChildCdata.setOnAction((ActionEvent e) -> {
-                CDATASection cdata = data.getNode().getOwnerDocument().createCDATASection("CDATA");
-                data.getNode().appendChild(cdata);
-
-                // 対象 TreeItem を updateTree に渡す。
-                updateTree(this.getTreeItem());
-            });
-            addChild.getItems().add(addChildCdata);
-
-            items.add(addChild);
-        }
+        ContextMenu cm =
+            DefaultYadomeContextMenuFactory.createContextMenu(this);
 
         setContextMenu(cm);
 
@@ -259,7 +119,7 @@ public class DefaultYadomeTreeCell extends YadomeTreeCell {
      *
      * @param treeItem 更新対象の TreeItem
      */
-    protected void updateTree(TreeItem<YadomeViewData> treeItem) {
+    void updateTree(TreeItem<YadomeViewData> treeItem) {
         YadomeViewData data = treeItem.getValue();
 
         // ノードから TreeItem への紐づけを記憶する Map を作成
