@@ -36,57 +36,16 @@ public class DefaultYadomeTreeCell extends YadomeTreeCell {
     }
 
     @Override
-    public void updateItem(YadomeViewData data, boolean empty) {
-        super.updateItem(data, empty);
-        setContextMenu(null);
-
-        if (data == null || empty == true) {
-            return;
-        }
-
-        updateHeader();
-
-        ContextMenu cm =
-            DefaultYadomeContextMenuFactory.createContextMenu(this);
-
-        setContextMenu(cm);
-
+    protected javafx.scene.Node createGraphic() {
+        return createHeaderGraphic();
     }
 
     @Override
-    public void startEdit() {
-        Node node = getItem().getNode();
-
-        switch (node.getNodeType()) {
-            case Node.ELEMENT_NODE:
-            case Node.ATTRIBUTE_NODE:
-            case Node.TEXT_NODE:
-            case Node.COMMENT_NODE:
-            case Node.CDATA_SECTION_NODE:
-                super.startEdit();
-                break;
-            default:
-                // do nothing.
-        }
+    protected ContextMenu createExternalContextMenu() {
+        return DefaultYadomeContextMenuFactory.createContextMenu(this);
     }
 
-    @Override
-    public void commitEdit(YadomeViewData data) {
-        super.commitEdit(data);
-        if (this.getTreeItem().getParent() == null) {
-            updateTree(this.getTreeItem());
-        } else {
-            updateTree(this.getTreeItem().getParent());
-        }
-    }
-
-    @Override
-    public void cancelEdit() {
-        super.cancelEdit();
-        updateHeader();
-    }
-
-    private void updateHeader() {
+    private javafx.scene.Node createHeaderGraphic() {
         YadomeViewData data = getItem();
 
         javafx.scene.text.Text t;
@@ -102,7 +61,41 @@ public class DefaultYadomeTreeCell extends YadomeTreeCell {
                 t = new javafx.scene.text.Text(node.getNodeName());
                 break;
         }
-        setGraphic(t);
+
+        return t;
+    }
+
+    @Override
+    protected boolean isEditable(Node node) {
+        switch (node.getNodeType()) {
+            case Node.ELEMENT_NODE:
+            case Node.ATTRIBUTE_NODE:
+            case Node.TEXT_NODE:
+            case Node.COMMENT_NODE:
+            case Node.CDATA_SECTION_NODE:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    @Override
+    protected void startEditCallback() {
+        // do nothing.
+    }
+
+    @Override
+    protected void commitEditCallback() {
+        if (this.getTreeItem().getParent() == null) {
+            updateTree(this.getTreeItem());
+        } else {
+            updateTree(this.getTreeItem().getParent());
+        }
+    }
+
+    @Override
+    protected void cancelEditCallback() {
+        setGraphic(createGraphic());
     }
 
     @Override
