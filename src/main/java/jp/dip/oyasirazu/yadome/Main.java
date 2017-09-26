@@ -3,7 +3,9 @@ package jp.dip.oyasirazu.yadome;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
@@ -21,6 +23,12 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import jp.dip.oyasirazu.yadome.plugins.DefaultNodeVisitor;
 
+import lombok.Data;
+
+import org.kohsuke.args4j.Argument;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -75,7 +83,13 @@ public class Main extends Application {
     }
 
     @Override
-    public void start(Stage stage) throws IOException {
+    public void start(Stage stage) throws ParserConfigurationException, SAXException, IOException {
+
+        if (options.getTargetFile() != null
+                && options.getTargetFile().size() > 0) {
+            setTarget(Paths.get(options.getTargetFile().get(0)));
+        }
+
         this.stage = stage;
 
         loadStatus();
@@ -133,5 +147,37 @@ public class Main extends Application {
     public Yadome getYadome() {
         return yadome;
     }
+
+    // オプションオブジェクト
+    private static Options options = new Options();
+
+    public static void main(String[] args) {
+
+        // パーサー準備
+        CmdLineParser optionParser = new CmdLineParser(options);
+
+        try {
+            // パース
+            optionParser.parseArgument(args);
+
+        } catch (CmdLineException E) {
+            // Useage を表示
+            System.out.println("Useage:\n"
+                    + "  Main [options] [FILE]\n"
+                    + "\n"
+                    + "Options:");
+            optionParser.printUsage(System.out);
+            System.exit(1);
+        }
+
+        Application.launch(Main.class, args);
+    }
+
+    @Data
+    static class Options {
+        @Argument
+        private List<String> targetFile;
+    }
+
 }
 

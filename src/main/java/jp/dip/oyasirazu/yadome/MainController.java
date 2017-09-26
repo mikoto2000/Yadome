@@ -94,6 +94,8 @@ public class MainController {
 
     public void setApplication(Main application) {
         this.application = application;
+
+        initializeTreeView();
     }
 }
 
